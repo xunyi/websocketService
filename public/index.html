@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Tahoma, Geneva, sans-serif;
+        }
+
+        div {
+            display: inline;
+        }
+    </style>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.js"></script>
+    <!-- <script src="https://cdn.bootcss.com/sockjs-client/1.1.2/sockjs.js"></script> -->
+    <script>
+        function updateStats(memuse) {
+            document.getElementById('rss').innerHTML = memuse.rss;
+            document.getElementById('heapTotal').innerHTML = memuse.heapTotal;
+            document.getElementById('heapUsed').innerHTML = memuse.heapUsed;
+        }
+
+        var host = window.document.location.host.replace(/:.*/, '');
+        var timestamp = new Date().getTime();
+        var ws = new WebSocket('ws://' + host + ':3000?id=' + timestamp);
+        ws.onmessage = function(event) {
+            updateStats(JSON.parse(event.data));
+        };
+
+        function sendMessage() {
+            var obj = {};
+            obj.id = "1492570465597";
+            obj.message = {
+                rss: '12313',
+                heapTotal: '',
+                heapUsed: ''
+            };
+            ws.send(JSON.stringify(obj));
+        }
+    </script>
+</head>
+
+<body>
+    <strong>Server Stats</strong><br> RSS:
+    <div id='rss'></div><br> Heap total:
+    <div id='heapTotal'></div><br> Heap used:
+    <div id='heapUsed'></div><br>
+    <button type="button" onclick="sendMessage()">发送消息</button>
+</body>
+
+</html>
