@@ -23,7 +23,7 @@ router.get('/', function(req, res, next) {
     res.send("Websocket Service");
 });
 
-// 获取全部注册服务里欸包
+// 获取全部注册服务的信息
 router.get('/service', function(req, res, next) {
     res.json(registryServices);
 });
@@ -81,7 +81,7 @@ router.delete('/service/:appId', function(req, res, next) {
         next(err);
     }
 });
-
+// 获取连接到一个服务上的客户端id列表
 router.get('/service/:appId/client', function(req, res, next) {
     var appId = req.params.appId;
     if (appId) {
