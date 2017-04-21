@@ -7,8 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('websocket:server');
 var http = require('http');
-var url = require('url');
 const WebSocket = require('ws');
+var ws = require('../ws');
 
 /**
  * Get port from environment and store in Express.
@@ -22,44 +22,10 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-const wss = new WebSocket.Server({
+wss = new WebSocket.Server({
     server
 });
-
-// Broadcast to all.
-wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(data);
-        }
-    });
-};
-var wsClients = {};
-wss.on('connection', function connection(ws) {
-    const location = url.parse(ws.upgradeReq.url, true);
-    console.log('connection url: %s', location.query.id);
-    // You might use location.query.access_token to authenticate or share sessions
-    // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-    ws.id = location.query.id;
-    wsClients[ws.id] = ws;
-
-    ws.on('message', function incoming(message) {
-        console.log('received: %s', message);
-        var obj = JSON.parse(message);
-
-        wsClients[obj.id] && wsClients[obj.id].send(JSON.stringify({
-            rss: message,
-            heapTotal: message,
-            heapUsed: message
-        }));
-    });
-
-    ws.send(JSON.stringify({
-        rss: 'something111',
-        heapTotal: 'something222',
-        heapUsed: 'something333'
-    }));
-});
+ws();
 
 /**
  * Listen on provided port, on all network interfaces.
